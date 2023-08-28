@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Custom challenge
+
+custom_check_factor()
+{
+	if [ $# -ne 3 ];
+        then
+                custom_args=("$@")
+                custom_count=0
+                custom_num2=1
+                for custom_a in ${custom_args[*]};
+                do
+                        if [ $custom_count -gt 1 ];
+                        then
+                                custom_num2=$(echo $custom_a*$custom_num2 | bc)
+                        fi
+                        custom_count=$((custom_count + 1))
+                done
+        else
+                custom_num2=$3
+        fi
+
+        custom_num1=$2
+        custom_num=$(echo "$1" | tr ':' '=')
+
+        custom_result=$(echo "if($custom_num2 > $custom_num1) 1 else 0" | bc)
+	        if ((custom_result == 1)); then
+		        custom_numcp=$custom_num1
+		        custom_num1=$custom_num2
+		        custom_num2=$custom_numcp
+                fi
+
+        echo "$custom_num$custom_num1*$custom_num2"
+}
+
+if [ $# -ne 1 ]
+then
+        echo 'Usage: custom_rsa <file>'
+        exit 1
+else
+        while read custom_i
+        do
+                custom_result=$(factor "$custom_i")
+                custom_check_factor $custom_result
+        done < "$1"
+fi
